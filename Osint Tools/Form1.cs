@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Windows.Forms;
 using EbubekirBastamatxtokuma;
@@ -15,7 +15,7 @@ namespace Osint_Tools
         }
         string dgr = "";
         Thread th; ChromeDriver drv; OpenFileDialog op;
-        string[] urller = { "https://twitter.com/", "https://www.facebook.com/" , "https://www.instagram.com/", "https://github.com/" };
+        string[] urller = { "https://twitter.com/", "https://www.facebook.com/" , "https://www.instagram.com/", "https://github.com/", "https://tr.pinterest.com/","https://www.youtube.com/user/" };
         private void button2_Click(object sender, EventArgs e)
         {
             op = new OpenFileDialog();
@@ -94,20 +94,58 @@ namespace Osint_Tools
                             listBox2.Items.Add("Bu github Kullanıcı Adı : " + listBox1.Items[j].ToString() + " Mevcut");
                         }
                     }
+                    else if (dgr == "https://tr.pinterest.com/")
+                    {
+                        urlac(urller[i].ToString() + listBox1.Items[j].ToString());
+                        if (drv.PageSource.IndexOf("Pinterest'e Hoş Geldiniz:") != -1)
+                        {
+                            listBox2.Items.Add("Bu Pinterest Kullanıcı Adı : " + listBox1.Items[j].ToString() + " Mevcut Değil..");
+                        }
+                        else
+                        {
+                            listBox2.Items.Add("Bu Pinterest Kullanıcı Adı : " + listBox1.Items[j].ToString() + " Mevcut");
+                        }
+                    }
+                    else if (dgr == "https://www.youtube.com/user/")
+                    {
+                        urlac(urller[i].ToString() + listBox1.Items[j].ToString());
+                        if (drv.PageSource.IndexOf("Üzgünüz, böyle bir sayfa mevcut değil.") != -1)
+                        {
+                            listBox2.Items.Add("Bu Youtube Kullanıcı Adı : " + listBox1.Items[j].ToString() + " Mevcut Değil..");
+                        }
+                        else
+                        {
+                            listBox2.Items.Add("Bu Youtube Kullanıcı Adı : " + listBox1.Items[j].ToString() + " Mevcut");
+                        }
+                    }
                 }
                 
             }
 
         }
-
         private void urlac(string url)
         {
             drv.Navigate().GoToUrl(url);
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             BastamaTextSave.txt_save.txtlistsave(listBox2, "Veriler Akatarıldı....", Application.StartupPath + "\\", "osint");
+        }
+        string url = "https://developers.whatismybrowser.com/useragents/explore/operating_platform/iphone-7/";
+        private void button4_Click(object sender, EventArgs e)
+        {
+            th = new Thread(useragent);th.Start();
+        }
+
+        private void useragent()
+        {
+            drv = new ChromeDriver();
+            drv.Navigate().GoToUrl(url);
+            Thread.Sleep(2000);
+            for (int i = 1; i < drv.FindElementsByClassName("useragent").Count; i++)
+            {
+                listBox2.Items.Add(drv.FindElementsByClassName("useragent")[i].Text);
+            }
         }
     }
 }
